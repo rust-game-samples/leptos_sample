@@ -1,3 +1,19 @@
+mod api;
+mod constants;
+mod error;
+mod middleware;
+mod model;
+mod repository;
+mod utils;
+
+use actix_web::{web, App, HttpServer};
+use mongodb::{Client, options::ClientOptions};
+use std::sync::Arc;
+use utils::google_auth::get_client;
+use repository::{todo::TodoRepository, user::UserRepository};
+use constants::*;
+use api::{google::*, todo::*, token::*, user::*};
+
 #[cfg(feature = "ssr")]
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -11,6 +27,13 @@ async fn main() -> std::io::Result<()> {
     let addr = conf.leptos_options.site_addr;
     // Generate the list of routes in your Leptos App
     let routes = generate_route_list(App);
+
+
+    let uri = std::env::var("MONGODB_URI").unwrap_or_else(|_| "mongodb://localhost:27017".into());
+    let client = Client::with_uri_str(uri).await.expect("failed to connect");
+    let user_repo = UserRepository::new(&client, DB_NAME).await;
+    let todo_repo = TodoRepository::new(&client, DB_NAME).await;
+
     println!("listening on http://{}", &addr);
 
     HttpServer::new(move || {
@@ -18,6 +41,11 @@ async fn main() -> std::io::Result<()> {
         let site_root = &leptos_options.site_root;
 
         App::new()
+            .app_data(web::Data::new(user_repo.clone()))
+            .app_data(web::Data::new(todo_repo.clone()))
+            .service(register_user)
+            .service(login_user)
+            .service(web::scope("/token").service(refresh_token))
             // serve JS/WASM/CSS from `pkg`
             .service(Files::new("/pkg", format!("{site_root}/pkg")))
             // serve other assets from the `assets` directory
