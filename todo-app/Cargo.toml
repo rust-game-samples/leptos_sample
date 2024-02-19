@@ -16,22 +16,22 @@ leptos_meta = { version = "^0.6", features = ["nightly"] }
 leptos_actix = { version = "^0.6", optional = true }
 leptos_router = { version = "^0.6", features = ["nightly"] }
 wasm-bindgen = "=0.2.89"
-mongodb = "^2"
-tokio = { version = "1", features = ["full"] }
+mongodb = { version = "^2", optional = true }
+#tokio = { version = "1", features = ["full"] }
 serde = { version = "1.0", features = ["derive"] }
-actix-web-httpauth = "*"
-jwt-simple = "0.10"
-rust-crypto = "0.2"
-actix-service = "^2"
-derive_more = "0.99.17"
-chrono = "0.4.31"
-bcrypt = "0.15.0"
-strum_macros = "^0.26"
+#actix-web-httpauth = { version = "*", optional = true}
+jwt-simple = { version = "0.10", optional = true }
+openidconnect = { version = "^3", optional = true }
+url = { version = "^2", optional = true }
+derive_more = { version = "0.99.17", optional = true }
+# rust-crypto = "0.2"
+actix-service = { version = "^2", optional = true }
+# chrono = { version = "^0.4", optional = true, features = ["serde"] }
 strum = { version = "^0.26", features = ["derive"] }
-futures = "0.3.28"
-futures-util = "0.3.30"
-openidconnect = "^3"
-url = "^2"
+strum_macros = { version = "^0.26", optional = true }
+futures = { version = "0.3.28", optional = true }
+futures-util = { version = "0.3.30", optional = true }
+bcrypt = { version = "0.15.0", optional = true }
 
 [dependencies.uuid]
 version = "1.7.0"
@@ -47,7 +47,19 @@ hydrate = ["leptos/hydrate", "leptos_meta/hydrate", "leptos_router/hydrate"]
 ssr = [
   "dep:actix-files",
   "dep:actix-web",
+#  "dep:actix-web-httpauth",
   "dep:leptos_actix",
+  "dep:mongodb",
+  "dep:futures",
+  "dep:futures-util",
+#  "dep:chrono",
+  "dep:strum_macros",
+  "dep:jwt-simple",
+  "dep:openidconnect",
+  "dep:url",
+  "dep:derive_more",
+  "dep:actix-service",
+  "dep:bcrypt",
   "leptos/ssr",
   "leptos_meta/ssr",
   "leptos_router/ssr",
